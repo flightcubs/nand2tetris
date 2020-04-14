@@ -1,0 +1,2 @@
+# nand2tetris
+This repo contains my answers to the exercises and coursework in book The Elements of Computing Systems. The course "Build a Modern Computer from First Principles: From Nand to Tetris" (also known as nand2tetris) also exists on Coursera (https://www.coursera.org/learn/build-a-computer) but I'm following the book.
