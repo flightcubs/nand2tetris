@@ -13,9 +13,24 @@ CHIP Xor {
     OUT out;
 
     PARTS:
-    Not(in=a, out=nota);
-    Not(in=b, out=notb);
-    And(a=a, b=notb, out=anotb);
-    And(a=nota, b=b, out=bnota);
-    Or(a=anotb, b=bnota, out=out);
+    // First implementation:
+
+    // First reverse both inputs
+    // Not(in=a, out=nota);
+    // Not(in=b, out=notb);
+    // Check if a is 1 and b is 0
+    // And(a=a, b=notb, out=anotb);
+    // Check if b is 1 and a is 0
+    // And(a=nota, b=b, out=bnota);
+    // Check if either of above was true
+    // Or(a=anotb, b=bnota, out=out);
+
+    // More efficient implementation:
+
+    // Check if both are not 1
+    Nand(a=a, b=b, out=bothnot1);
+    // Check if both are not 0
+    Or(a=a, b=b, out=bothnot0);
+    // If both of above is true, then they are different
+    And(a=bothnot1, b=bothnot0, out=out);
 }
