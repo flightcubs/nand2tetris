@@ -18,5 +18,10 @@ CHIP Mux8Way16 {
     OUT out[16];
 
     PARTS:
-    // Put your code here:
+    // First, use the existing Mux4Way16 to simplify this gate
+    // by reducing the 8 ways and two selectors into 2 ways and 1 selector
+    Mux4Way16(a=a, b=b, c=c, d=d, sel=sel[1..2], out=ad);
+    Mux4Way16(a=e, b=f, c=g, d=h, sel=sel[1..2], out=eh);
+    // Now we can use a normal Mux16 as we only have two signals and one selector
+    Mux16(a=ad, b=eh, sel=sel[0], out=out);
 }
