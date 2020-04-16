@@ -16,9 +16,12 @@ CHIP DMux8Way {
     OUT a, b, c, d, e, f, g, h;
 
     PARTS:
+    // First, split the 8 ways into 2 with the first selector
     DMux(in=in, sel=sel[2], a=ad, b=eh);
+    // Now, split each result into 2 again with the second selector
     DMux(in=ad, sel=sel[1], a=ab, b=cd);
     DMux(in=eh, sel=sel[1], a=ef, b=gh);
+    // Now we can use a standard DMux to resolve the resulting pairs with the last selector
     DMux(in=ab, sel=sel[0], a=a, b=b);
     DMux(in=cd, sel=sel[0], a=c, b=d);
     DMux(in=ef, sel=sel[0], a=e, b=f);
