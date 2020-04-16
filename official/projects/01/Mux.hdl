@@ -14,10 +14,11 @@ CHIP Mux {
     OUT out;
 
     PARTS:
-    Not(in=sel, out=not_sel);
-    // Extract the value of a and b if they are selected, else 0
-    And(a=sel, b=b, out=b_if_selected_else_0);
-    And(a=a, b=not_sel, out=a_if_selected_else_0);
-    // Since the non-selected value is always 0, take the value of the other one
-    Or(a=a_if_selected_else_0, b=b_if_selected_else_0, out=out);
+    Not(in=sel, out=notsel);
+    // Set the value of sela/selb to 1 if it's value is 1 and it's selected, else 0
+    And(a=sel, b=b, out=selb);
+    And(a=a, b=notsel, out=sela);
+    // The non-selected value will be 0, and will not be returned in the Or statement
+    // The selected value will be it's input value
+    Or(a=sela, b=selb, out=out);
 }
