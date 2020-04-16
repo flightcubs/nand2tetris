@@ -15,6 +15,8 @@ CHIP DMux {
 
     PARTS:
     Not(in=sel, out=notsel);
+    // If sel is 1, and in signal is 1, set b output to 1, otherwise to 0
     And(a=in, b=sel, out=b);
+    // If sel is 0 and in signal is 1, set a output to 1, otherwise to 0
     And(a=in, b=notsel, out=a);
 }
