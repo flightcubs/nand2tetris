@@ -14,6 +14,11 @@ CHIP And {
     OUT out;
 
     PARTS:
+    // First do a normal nand which results in 1 for all cases except a=b=1 which return 0
     Nand(a=a, b=b, out=aNandb);
+    // If the result is 0 (both a and b is 1), we'll now evaluate nand for 0 and 0
+    // which will evaluate to 1.
+    // Otherwise, evaluate nand for 1 and 1 (which means a and b is not both 1)
+    // resulting in 0.
     Nand(a=aNandb, b=aNandb, out=out);
 }
