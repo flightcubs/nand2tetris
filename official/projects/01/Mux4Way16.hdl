@@ -16,5 +16,12 @@ CHIP Mux4Way16 {
     OUT out[16];
 
     PARTS:
-    // Put your code here:
+    // First, use the first selector to split in to two pairs.
+    // Need to input pairs of different selectors, so a+c and b+d
+    Mux16(a=a, b=c, sel=sel[1], out=ac);
+    Mux16(a=b, b=d, sel=sel[1], out=bd);
+    // Now we have a mixed signal of a+c and b+d
+    // and can use that the second selector
+    // to determine which of a+c and b+d to use
+    Mux16(a=ac, b=bd, sel=sel[0], out=out);
 }
