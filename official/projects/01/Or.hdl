@@ -14,7 +14,13 @@ CHIP Or {
     OUT out;
 
     PARTS:
-    Nand(a=a, b=a, out=nandA);
-    Nand(a=b, b=b, out=nandB);
-    Nand(a=nandA, b=nandB, out=out);
+    // First, invert the input signals
+    Nand(a=a, b=a, out=nota);
+    Nand(a=b, b=b, out=notb);
+    // Now we can use a normal nand gate.
+    // When both inputs are 0, they will both be 1 after the inversion.
+    // a=b=1 results in 0 from the nand gate.
+    // For all other cases, at least one input is 1, which after the inversion is 0
+    // if a or b = 0, a nand gate returns 1
+    Nand(a=nota, b=notb, out=out);
 }
