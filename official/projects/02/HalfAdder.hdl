@@ -13,5 +13,10 @@ CHIP HalfAdder {
         carry;  // Left bit of a + b
 
     PARTS:
-    // Put you code here:
+    // If both inputs are 0 or 1, then the least significant bit will add up to 0
+    // If only one input is 1, the least significant bit will be 1
+    // This is a simple Xor gate
+    Xor(a=a, b=b, out=sum);
+    // The only way there will be a carry is if both inputs are 1
+    And(a=a, b=b, out=carry);
 }
