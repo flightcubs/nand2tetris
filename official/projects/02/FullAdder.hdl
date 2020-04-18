@@ -13,5 +13,13 @@ CHIP FullAdder {
         carry;   // Left bit of a + b + c
 
     PARTS:
-    // Put you code here:
+    // Start by running a HalfAdder the first two signals
+    // Save the sum and the carry
+    HalfAdder(a=a, b=b, sum=absum, carry=carry1);
+    // Do another HalfAdder using the last input signal with the HalfAdder sum of the first signals
+    // The resulting sum is the full added sum, but the carry is not the final carry yet
+    HalfAdder(a=c, b=absum, sum=sum, carry=carry2);
+    // The carry needs to account for both HalfAdder summations
+    // Both will not result in a carry, but one of them may have produced a carry
+    Or(a=carry1, b=carry2, out=carry);
 }
