@@ -1,4 +1,4 @@
-# Chapter 01
+# Chapter 01 - Boolean Logic
 
 Summary of Chapter 1 of *The Elements of Computing Systems* by Filip Hedberg
 
