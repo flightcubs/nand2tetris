@@ -42,5 +42,32 @@ CHIP ALU {
         ng; // 1 if (out < 0),  0 otherwise
 
     PARTS:
-   // Put you code here:
+    // First, zero the inputs if the selector zx is true
+    Mux16(a=x, b[0..15]=false, sel=zx, out=xzx);
+    Mux16(a=y, b[0..15]=false, sel=zy, out=yzy);
+    // Invert the result of the potentially zeroed inputs
+    // and use the inverted value if the nx input is true 
+    Not16(in=xzx, out=notxzx);
+    Not16(in=yzy, out=notyzy);
+    Mux16(a=xzx, b=notxzx, sel=nx, out=xprocessed);
+    Mux16(a=yzy, b=notyzy, sel=ny, out=yprocessed);
+    // We now have processed input signals
+    // Let's calculate the result of both functions first
+    Add16(a=xprocessed, b=yprocessed, out=addresult);
+    And16(a=xprocessed, b=yprocessed, out=andresult);
+    // Now we can select the expected result based on the f selection input
+    Mux16(a=andresult, b=addresult, sel=f, out=result);
+    // Let's negate the result, and use the negated result if the no signal is true
+    Not16(in=result, out=notresult);
+    Mux16(a=result, b=notresult, sel=no, out=out, out[0..7]=out1, out[8..15]=out2, out[15]=ng);
+    // Notice that the most significant bit (out[15]) is also representative
+    // of whether the output is < 0, so we can directly output this to the output ng.
+    // We also save two halves of the output, to check whether all output bits are 0.
+    // Since we don't yet have a 16 way Or gate, let's write it manually here:
+    Or8Way(in=out1, out=or1);
+    Or8Way(in=out2, out=or2);
+    Or(a=or1, b=or2, out=not0);
+    // The result above is 1 if any of the 16 bits is 1.
+    // The output zr should be 1 if all is 0, so we need to negate this:
+    Not(in=not0, out=zr);
 }
