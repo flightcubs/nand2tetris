@@ -13,5 +13,7 @@ CHIP Inc16 {
     OUT out[16];
 
     PARTS:
-   // Put you code here:
+    // Construct a constant bus representing the value 1
+    // and simply add the two numbers with our Add16 gate
+    Add16(a=in, b[0]=true, b[1..15]=false, out=out);
 }
