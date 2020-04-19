@@ -15,5 +15,21 @@ CHIP RAM8 {
     OUT out[16];
 
     PARTS:
-    // Put your code here:
+    // This RAM will contain 8 individual registers
+    // We get a three bit address pointing out which register to load with the single in signal
+    // Let's use DMux to split the load signal to an invididual load for all 8 registers
+    DMux8Way(in=load, sel=address, a=l0, b=l1, c=l2, d=l3, e=l4, f=l5, g=l6, h=l7);
+    // Now we can specify each register with the (same) input signal and each load
+    Register(in=in, load=l0, out=out0);
+    Register(in=in, load=l1, out=out1);
+    Register(in=in, load=l2, out=out2);
+    Register(in=in, load=l3, out=out3);
+    Register(in=in, load=l4, out=out4);
+    Register(in=in, load=l5, out=out5);
+    Register(in=in, load=l6, out=out6);
+    Register(in=in, load=l7, out=out7);
+    // Each register has an individual output
+    // To determine the output of the entire ram chip, we use the address again
+    // Let's take each output signal and use a Mux to merge the signals
+    Mux8Way16(a=out0, b=out1, c=out2, d=out3, e=out4, f=out5, g=out6, h=out7, sel=address, out=out);
 }
