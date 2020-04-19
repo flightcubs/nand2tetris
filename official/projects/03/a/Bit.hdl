@@ -14,5 +14,10 @@ CHIP Bit {
     OUT out;
 
     PARTS:
-    // Put your code here:
+    // Start by determining the current t input to the DFF
+    // by using the load to select between the previous output and the input signal
+    Mux(a=previousout, b=in, sel=load, out=input);
+    // Now, pass this input signal to the DFF, and return the output
+    // and send the output back into the Mux-gate in order to calculate next cycle (t+1)
+    DFF(in=input, out=out, out=previousout);
 }
