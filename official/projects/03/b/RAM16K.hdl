@@ -15,5 +15,17 @@ CHIP RAM16K {
     OUT out[16];
 
     PARTS:
-    // Put your code here:
+    // This RAM of 16384 will be constructed from 4 x RAM4K (4096)
+    // First, let's split the load signal to each of the 4 RAM chips
+    // The two MSB of the address points out which RAM
+    DMux4Way(in=load, sel=address[12..13], a=l1, b=l2, c=l3, d=l4);
+    // Let's register each RAM512 with the input signal, its load and
+    // the address specifying the sub-address from the twelve LSB
+    RAM4K(in=in, load=l1, address=address[0..11], out=out1);
+    RAM4K(in=in, load=l2, address=address[0..11], out=out2);
+    RAM4K(in=in, load=l3, address=address[0..11], out=out3);
+    RAM4K(in=in, load=l4, address=address[0..11], out=out4);
+    // Now, let's determine the output for this chip
+    // by selecting the output from the right RAM
+    Mux4Way16(a=out1, b=out2, c=out3, d=out4, sel=address[12..13], out=out);
 }
