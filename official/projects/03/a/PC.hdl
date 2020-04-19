@@ -16,5 +16,17 @@ CHIP PC {
     OUT out[16];
 
     PARTS:
-    // Put your code here:
+    // First, let's determine the input signal to the DFF
+
+    // Calculate the increment of the previous output
+    Inc16(in=previousout, out=incval);
+    // Use the incremented value if inc is 1, else use the unaltered value
+    Mux16(a=previousout, b=incval, sel=inc, out=counterval);
+    // Determine if load, then set the signal to the input
+    Mux16(a=counterval, b=in, sel=load, out=newval);
+    // Finally, set the input to 0 if reset is 1
+    Mux16(a=newval, b[0..15]=false, sel=reset, out=input);
+
+    // Now, use a 16 bit register and load the input value each cycle
+    Register(in=input, load=true, out=out, out=previousout);
 }
