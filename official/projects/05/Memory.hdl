@@ -27,5 +27,28 @@ CHIP Memory {
     OUT out[16];
 
     PARTS:
-    // Put your code here:
+    // Built from three chips: a 16K RAM, the built in screen and keyboard
+    // Depending on the address, we must read/write from the right chip
+    // The first 16384 words use the 16K RAM. 
+    // This number can be represented by the 14 most significant bits
+    // Meaning the 15 MSB tells us if we're using the RAM or not
+    // If it's 0, the address is 16384 or less, and it's the RAM
+    // If it's 1, it'll use the screen or keyboard (io)
+
+
+    // Start by splitting the load to RAM and IO load using the MSB
+    DMux(in=load, sel=address[14], a=ramload, b=ioload);
+    // The 14 MSB tells us if the number is above 8192, which means it's the keyboard
+    // IO load will only be 1 if it's in the IO range
+    DMux(in=ioload, sel=address[13], a=screenload, b=keyload);
+
+    // Register each submemory
+    RAM16K(in=in, load=ramload, address=address[0..13], out=ramout);
+    Screen(in=in, load=screenload, address=address[0..12], out=screenout);
+    Keyboard(out=keyout);
+
+    // Again, use the 14 MSB to determine the IO output
+    Mux16(a=screenout, b=keyout, sel=address[13], out=ioout);
+    // And the 15 MSB to determine whether to use the RAM output or the IO output
+    Mux16(a=ramout, b=ioout, sel=address[14], out=out);
 }
