@@ -39,5 +39,68 @@ CHIP CPU {
         pc[15];          // address of next instruction
 
     PARTS:
-    // Put your code here:
+    // These bit numbers counts from LSB to MSB
+    // Bits 0-2 declares jump
+    // Bits 3-5 declares destination
+    // Bits 6-11 declares the type of operation of ALU
+    // Bit 12 declares what type of input to ALU
+    // Bit 13-14 are not used
+    // Bit 15 declares if A or C command
+
+
+    // Prepare the inputs to the ALU
+    // Bit 6-11 is the instruction
+    // The x input is always D
+    // They y input is A or M depending on bit 12
+    Mux16(a=aprevout, b=inM, sel=instruction[12], out=aluiny);
+
+    ALU(x=dprevout, y=aluiny,
+        zx=instruction[11], nx=instruction[10], zy=instruction[9], ny=instruction[8], f=instruction[7], no=instruction[6],
+        out=aluout, out=outM, zr=aluouteq, ng=aluoutlt);
+
+    // Register the two internal registers D and A
+    // And load them with the ALU output if destination is enabled
+    // Bit 3 is M, Bit 4 is D, Bit 5 is A
+    // Load D if it's a C instruction and the D destination bit is enabled
+    And(a=instruction[15], b=instruction[4], out=loadd);
+    DRegister(in=aluout, load=loadd, out=dprevout);   // D register
+
+    // Set the input signal to the A register. Either the 15 LSB of the instruction or the alu out
+    // If the MSB is 0, it's an A instruction and we should interpret the instruction as a constant
+    Mux16(a[15]=false, a[0..14]=instruction[0..14], b=aluout, sel=instruction[15], out=ain);
+    // Determine if we should load A
+    // Load A either if (1) MSB is 0, or (2) the destination bit of alu output is 1 (bit 5)
+    Not(in=instruction[15], out=ainstruction);  // MSB 0 => A instruction
+    Or(a=ainstruction, b=instruction[5], out=loada);  // Load A if either it's an A instruction or A is a destination of ALU output
+    ARegister(in=ain, load=loada, out=aprevout, out[0..14]=addressM);  // A register
+
+    // Write to M if destination is M (bit 3) and it's a C command (MSB = 1)
+    And(a=instruction[3], b=instruction[15], out=writeM);
+
+    // Set up the CP to keep track of instructions
+    // Bit 0 (j3) is out > 0, Bit 1 (j2) is out = 0, Bit 2 (j1) is out < 0
+    Or(a=aluouteq, b=aluoutlt, out=aluoutle);  // Create a "less or equal than" alu output bit
+    Not(in=aluoutle, out=aluoutgt);  // Create a "greater than" alu output bit
+    Or(a=aluoutgt, b=aluouteq, out=aluoutge);  // Create a "greater or equal than" alu output bit
+    Not(in=aluouteq, out=aluoutneq);  // Create a "not equal" alu output bit
+    And(a=instruction[0], b=instruction[1], out=j2andj3);
+    And(a=instruction[0], b=instruction[2], out=j1andj3);
+    And(a=instruction[1], b=instruction[2], out=j1andj2);
+
+    And(a=instruction[0], b=aluoutgt, out=jgt);  // Jump if j3 and alu > 0
+    And(a=instruction[1], b=aluouteq, out=jeq);  // Jump if j2 and alu = 0
+    And(a=j2andj3, b=aluoutge, out=jge);  // Jump if j2 and j3 and alu => 0
+    And(a=instruction[2], b=aluoutlt, out=jlt);  // Jump if j1 and alu < 0
+    And(a=j1andj3, b=aluoutneq, out=jne);  // Jump if j1 and j3 and out != 0
+    And(a=j1andj2, b=aluoutle, out=jle);  // Jump if j1 and j2 and out <= 0
+    And(a=j1andj3, b=j1andj2, out=jmp);  // Unconditional jump if j1=j2=j3=1
+    // Check if any jump has a truthy value. Only 7 conditions so last argument is false to be able to use 8 way Or
+    Or8Way(in[0]=jgt, in[1]=jeq, in[2]=jge, in[3]=jlt, in[4]=jne, in[5]=jle, in[6]=jmp, in[7]=false, out=jump);
+    And(a=jump, b=instruction[15], out=shouldjump);  // Only jump if it's a C-command (MSB=!)
+
+    // Inc can always be set to true since that will be the default
+    // Load will cause a jump
+    // Reset trumps both of the above, and can be set by the CPU input directly
+    // In should be the address loaded in A
+    PC(in=aprevout, load=shouldjump, inc=true, reset=reset, out[0..14]=pc);
 }
