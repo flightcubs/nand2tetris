@@ -1,6 +1,7 @@
 (ns assembler-test
   (:require [clojure.test :refer [deftest is testing]]
-            [assembler :as assembler]))
+            [assembler :as assembler]
+            [clojure.string :as str]))
 
 (deftest test-clean-lines
   (testing "Make sure comments, whitespace and new lines are removed"
@@ -15,7 +16,7 @@
   (is (= (assembler/number->binary 5) "000000000000101")))
 
 (deftest test-a-command
-  (is (= (assembler/a-command->instruction "@4") "0000000000000100")))
+  (is (= (assembler/a-command->instruction "@4" {}) "0000000000000100")))
 
 (deftest test-c-command
   (is (= (assembler/c-command->instruction "D=M") "1111110000010000"))
@@ -52,14 +53,29 @@
 (deftest test-max-l
   (let [result (assembler/parse-string (slurp "../../official/projects/06/max/MaxL.asm"))
         expected (slurp "../../official/projects/06/max/MaxL_correct.hack")]
-    (is (= result expected))))
+    (is (= (str/split-lines result) (str/split-lines expected)))))
 
 (deftest test-pong-l
   (let [result (assembler/parse-string (slurp "../../official/projects/06/pong/PongL.asm"))
         expected (slurp "../../official/projects/06/pong/PongL_correct.hack")]
-    (is (= result expected))))
+    (is (= (str/split-lines result) (str/split-lines expected)))))
 
 (deftest test-rect-l
   (let [result (assembler/parse-string (slurp "../../official/projects/06/rect/RectL.asm"))
         expected (slurp "../../official/projects/06/rect/RectL_correct.hack")]
-    (is (= result expected))))
+    (is (= (str/split-lines result) (str/split-lines expected)))))
+
+(deftest test-rect
+  (let [result (assembler/parse-string (slurp "../../official/projects/06/rect/Rect.asm"))
+        expected (slurp "../../official/projects/06/rect/Rect_correct.hack")]
+    (is (= (str/split-lines result) (str/split-lines expected)))))
+
+(deftest test-add
+  (let [result (assembler/parse-string (slurp "../../official/projects/06/add/Add.asm"))
+        expected (slurp "../../official/projects/06/add/Add_correct.hack")]
+    (is (= (str/split-lines result) (str/split-lines expected)))))
+
+(deftest test-pong
+  (let [result (assembler/parse-string (slurp "../../official/projects/06/pong/Pong.asm"))
+        expected (slurp "../../official/projects/06/pong/Pong_correct.hack")]
+    (is (= (str/split-lines result) (str/split-lines expected)))))
